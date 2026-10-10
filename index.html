@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A.W Above & Beyond Cleaning</title><link rel="icon" id="fav" href="data:,">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--c1:#1B7CC1;--c2:#C2D7EF}*{box-sizing:border-box}body{margin:0;font:16px Raleway,sans-serif;color:#262626}
+header{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 0 5px #0006;display:flex;align-items:center;gap:14px;padding:8px 20px;flex-wrap:wrap}
+header img{height:50px}#brand{color:var(--c1);font:700 18px Montserrat}nav{display:flex;gap:18px;margin-inline:auto}nav a{color:#262626;text-decoration:none;font-weight:700}
+.r{display:flex;gap:8px;align-items:center}.r select{width:auto}
+.btn{background:var(--c1);color:#fff;border:0;border-radius:10px;padding:10px 18px;font:700 14px Montserrat,sans-serif;cursor:pointer;text-decoration:none;display:inline-block}
+select,input,textarea{font:inherit;padding:8px;border:1px solid #bbb;border-radius:6px;width:100%;margin:4px 0 10px}
+.bgs{background:radial-gradient(circle,#5990CF,#fff) center/cover;color:#fff;text-align:center;padding:90px 20px}.bgs h1{font:700 44px Raleway;margin:0 0 10px}
+section{padding:50px 20px;max-width:1100px;margin:auto}h2{color:var(--c1);text-align:center}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.card{border-radius:6px;box-shadow:0 1px 3px #0008;padding:14px;text-align:center}.card img{width:100%;height:150px;object-fit:cover;border-radius:5px}
+.gal img{width:100%;height:200px;object-fit:cover;border-radius:5px}
+footer{background:#f9f9f9;padding:30px 20px;text-align:center}footer a{color:var(--c1);margin:0 8px}
+.ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:center;justify-content:center;padding:14px}.ov>div{background:#fff;border-radius:10px;padding:22px;width:420px;max-width:100%;max-height:90vh;overflow:auto}
+#adm{position:fixed;top:0;inset-inline-end:0;width:440px;max-width:100%;height:100%;background:#fff;z-index:40;box-shadow:0 0 12px #000a;overflow:auto;padding:14px;direction:ltr;text-align:left}
+#adm .t{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}#adm .t button{border:1px solid #999;background:#eee;border-radius:5px;padding:4px 8px;cursor:pointer}#adm .t .on{background:var(--c1);color:#fff}
+.row{border:1px solid #ddd;border-radius:6px;padding:8px;margin-bottom:8px}small{color:#666}
+</style></head><body>
+<header><img id="logo" alt=""><span id="brand"></span><nav><a href="#services" data-i="0"></a><a href="#work" data-i="1"></a><a href="#contact" data-i="2"></a></nav>
+<div class="r"><select id="lang"></select><a class="btn" href="#" data-b="0" data-i="3"></a><button class="btn" id="st" style="background:#555"></button></div></header>
+<div class="bgs" id="hero"><h1 id="ht"></h1><p id="hx"></p><a class="btn" href="#" data-b="0" data-i="3" style="background:#fff;color:var(--c1)"></a></div>
+<section id="services"><h2 data-i="0"></h2><div class="g" id="svc"></div></section>
+<section id="work"><h2 data-i="1"></h2><div class="g gal" id="gal"></div></section>
+<div class="bgs" id="about" style="background-color:#fff"><h2 id="at" style="color:#fff"></h2><p id="ax"></p></div>
+<footer id="contact"><h2 data-i="2"></h2><div id="ct"></div><p><small id="cp"></small></p></footer>
+<div id="adm" hidden></div><div class="ov" id="wz" hidden><div id="wzb"></div></div>
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import{getFirestore,doc,getDoc,setDoc,addDoc,collection,getDocs,updateDoc,deleteDoc,serverTimestamp,query,orderBy}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const firebaseConfig={apiKey:"AIzaSyDU6rlIJP5Sldt1WMGk8LUpihSzZdrx0jc",authDomain:"aboveandbeyond-21d6e.firebaseapp.com",projectId:"aboveandbeyond-21d6e",storageBucket:"aboveandbeyond-21d6e.firebasestorage.app",messagingSenderId:"802899866708",appId:"1:802899866708:web:b7af13a8f49d13221e29c1"};
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LN={en:'English',ar:'العربية',de:'Deutsch',nl:'Nederlands (NL/BE)',fr:'Français',es:'Español',pt:'Português',ru:'Русский',zh:'中文 (普通话)',tr:'Türkçe'};
+const U={en:'Services|Our Work|Contact|Book now|Staff login|Log in|Log out|Full name|Phone|Date|Time|Next|Back|Confirm booking|Thank you! We will contact you shortly.|Service|Notes|Closed on this day',
+ar:'خدماتنا|أعمالنا|اتصل بنا|احجز الآن|دخول الموظفين|دخول|خروج|الاسم الكامل|الهاتف|التاريخ|الوقت|التالي|السابق|تأكيد الحجز|شكراً لك! سنتواصل معك قريباً.|الخدمة|ملاحظات|مغلق في هذا اليوم',
+de:'Leistungen|Unsere Arbeit|Kontakt|Jetzt buchen|Mitarbeiter-Login|Anmelden|Abmelden|Vollständiger Name|Telefon|Datum|Uhrzeit|Weiter|Zurück|Buchung bestätigen|Danke! Wir melden uns in Kürze.|Leistung|Notizen|An diesem Tag geschlossen',
+nl:'Diensten|Ons werk|Contact|Nu boeken|Personeel inloggen|Inloggen|Uitloggen|Volledige naam|Telefoon|Datum|Tijd|Volgende|Terug|Boeking bevestigen|Bedankt! We nemen binnenkort contact op.|Dienst|Opmerkingen|Gesloten op deze dag',
+fr:'Services|Nos réalisations|Contact|Réserver|Connexion personnel|Connexion|Déconnexion|Nom complet|Téléphone|Date|Heure|Suivant|Retour|Confirmer la réservation|Merci ! Nous vous contacterons bientôt.|Service|Remarques|Fermé ce jour-là',
+es:'Servicios|Nuestro trabajo|Contacto|Reservar|Acceso personal|Entrar|Salir|Nombre completo|Teléfono|Fecha|Hora|Siguiente|Atrás|Confirmar reserva|¡Gracias! Nos pondremos en contacto pronto.|Servicio|Notas|Cerrado ese día',
+pt:'Serviços|Nosso trabalho|Contacto|Reservar|Acesso da equipa|Entrar|Sair|Nome completo|Telefone|Data|Hora|Seguinte|Voltar|Confirmar reserva|Obrigado! Entraremos em contacto em breve.|Serviço|Notas|Fechado neste dia',
+ru:'Услуги|Наши работы|Контакты|Забронировать|Вход для персонала|Войти|Выйти|Полное имя|Телефон|Дата|Время|Далее|Назад|Подтвердить бронь|Спасибо! Мы скоро свяжемся с вами.|Услуга|Заметки|В этот день закрыто',
+zh:'服务|我们的作品|联系我们|立即预约|员工登录|登录|退出|姓名|电话|日期|时间|下一步|返回|确认预约|谢谢！我们会尽快联系您。|服务|备注|当天休息',
+tr:'Hizmetler|Çalışmalarımız|İletişim|Hemen rezervasyon|Personel girişi|Giriş|Çıkış|Ad soyad|Telefon|Tarih|Saat|İleri|Geri|Rezervasyonu onayla|Teşekkürler! Yakında sizinle iletişime geçeceğiz.|Hizmet|Notlar|Bu gün kapalı'};
+for(const k in U)U[k]=U[k].split('|');
+const D={name:'A.W Above & Beyond Cleaning',logo:'',favicon:'',imgFolder:'images/',c1:'#1B7CC1',c2:'#C2D7EF',heroImg:'',heroTitle:'New Era Of Cleaning',heroText:'Professional residential & commercial cleaning you can trust.',aboutImg:'',aboutTitle:"We're committed to caring.",aboutText:'A family business that takes good care of our team, so they can take good care of your space.',phone:'',email:'',whatsapp:'',facebook:'',instagram:'',
+services:[{name:'Deep Cleaning',desc:'Deep clean your home for a sparkling, healthy space.',img:''},{name:'Carpet & Furniture',desc:'Protect your furniture from fading and staining.',img:''},{name:'Post Construction',desc:'Remove post-construction dust and dirt.',img:''},{name:'Commercial Cleaning',desc:'Offices and business facilities kept spotless.',img:''}],
+gallery:'',closedDays:[5],closedDates:'',start:'09:00',end:'17:00',slot:60,waOn:false,waPhone:'',waKey:''};
+let cfg={...D},lang=localStorage.lang||'en',user=null,db=null,auth=null,tab='General',w={};
+try{const a=initializeApp(firebaseConfig);db=getFirestore(a);auth=getAuth(a)}catch(e){console.warn('Firebase not configured',e)}
+const tx=(o,k)=>o[k+'_'+lang]||o[k]||'';
+const img=v=>!v?'':/^(https?:|data:|\/|\.\/|images\/)/.test(v)?v:(cfg.imgFolder||'images/').replace(/\/?$/,'/')+v;
+const bg=v=>v?`linear-gradient(#0005,#0005),url("${img(v)}")`:'';
+$('#lang').innerHTML=Object.entries(LN).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+$('#lang').onchange=e=>{lang=e.target.value;localStorage.lang=lang;render();if(!$('#adm').hidden)adm()};
+function render(){const c=cfg,t=k=>tx(c,k),H=document.documentElement,u=U[lang];
+H.lang=lang;H.dir=lang=='ar'?'rtl':'ltr';H.style.setProperty('--c1',c.c1);H.style.setProperty('--c2',c.c2);$('#lang').value=lang;
+document.title=t('name');$('#fav').href=img(c.favicon)||'data:,';
+$('#logo').src=img(c.logo);$('#logo').style.display=c.logo?'':'none';$('#brand').textContent=c.logo?'':t('name');
+document.querySelectorAll('[data-i]').forEach(e=>e.textContent=u[e.dataset.i]);
+$('#st').textContent=user?'✎ Edit':u[4];
+$('#hero').style.backgroundImage=bg(c.heroImg);$('#ht').textContent=t('heroTitle');$('#hx').textContent=t('heroText');
+$('#about').style.backgroundImage=bg(c.aboutImg);$('#about').style.backgroundColor=c.c1;$('#at').textContent=t('aboutTitle');$('#ax').textContent=t('aboutText');
+$('#svc').innerHTML=c.services.map((s,i)=>`<div class="card">${s.img?`<img src="${esc(img(s.img))}" alt="">`:''}<h3>${esc(tx(s,'name'))}</h3><p>${esc(tx(s,'desc'))}</p><a class="btn" href="#" data-b="${i}">${u[3]}</a></div>`).join('');
+$('#gal').innerHTML=String(c.gallery).split('\n').map(x=>x.trim()).filter(Boolean).map(x=>`<img src="${esc(img(x))}" alt="">`).join('');
+const L=[];if(c.phone)L.push(`<a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>`);if(c.email)L.push(`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`);
+if(c.whatsapp)L.push(`<a target="_blank" href="https://wa.me/${c.whatsapp.replace(/\D/g,'')}">WhatsApp</a>`);if(c.facebook)L.push(`<a target="_blank" href="${esc(c.facebook)}">Facebook</a>`);if(c.instagram)L.push(`<a target="_blank" href="${esc(c.instagram)}">Instagram</a>`);
+$('#ct').innerHTML=L.join(' ');$('#cp').textContent='© '+new Date().getFullYear()+' '+t('name')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(b){e.preventDefault();wiz(+b.dataset.b)}});
+$('#st').onclick=()=>user?adm():login();
+/* booking wizard */
+const closed=d=>{if(!d)return false;const g=new Date(d+'T12:00').getDay();return cfg.closedDays.includes(g)||String(cfg.closedDates).split(/[\s,]+/).includes(d)};
+const slots=()=>{const[a,b]=[cfg.start,cfg.end].map(x=>{const[h,m]=x.split(':');return h*60+ +m}),o=[];for(let m=a;m<b;m+=+cfg.slot||60)o.push(String(m/60|0).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));return o};
+function wiz(i){w={s:i||0,date:'',time:'',n:'',p:'',nt:'',step:1};$('#wz').hidden=false;drawW()}
+function rd(){const g=id=>$('#'+id)?.value;if(w.step==1)w.s=+g('w_s');if(w.step==2){w.date=g('w_d');w.time=g('w_t')}if(w.step==3){w.n=g('w_n');w.p=g('w_p');w.nt=g('w_nt')}}
+function drawW(){const u=U[lang],c=cfg;let h='<h3>'+esc(tx(c,'name'))+'</h3>';
+if(w.step==1)h+=`<label>${u[15]}</label><select id="w_s">${c.services.map((s,j)=>`<option value="${j}" ${j==w.s?'selected':''}>${esc(tx(s,'name'))}</option>`).join('')}</select>`;
+if(w.step==2){const cl=closed(w.date);h+=`<label>${u[9]}</label><input type="date" id="w_d" min="${new Date().toISOString().slice(0,10)}" value="${w.date}"><label>${u[10]}</label><select id="w_t">${slots().map(s=>`<option ${s==w.time?'selected':''}>${s}</option>`).join('')}</select>${cl?`<p style="color:#c00">${u[17]}</p>`:''}`}
+if(w.step==3)h+=`<label>${u[7]}</label><input id="w_n" value="${esc(w.n)}"><label>${u[8]}</label><input id="w_p" value="${esc(w.p)}"><label>${u[16]}</label><textarea id="w_nt">${esc(w.nt)}</textarea>`;
+if(w.step==4)h+=`<p>${u[14]}</p>`;
+h+='<div class="r">'+(w.step>1&&w.step<4?`<button class="btn" id="w_b" style="background:#888">${u[12]}</button>`:'')+(w.step<3?`<button class="btn" id="w_x" ${w.step==2&&(!w.date||closed(w.date))?'disabled':''}>${u[11]}</button>`:w.step==3?`<button class="btn" id="w_c">${u[13]}</button>`:`<button class="btn" id="w_o">OK</button>`)+'</div>';
+$('#wzb').innerHTML=h;
+const q=id=>$('#'+id);if(q('w_d'))q('w_d').onchange=()=>{rd();drawW()};
+if(q('w_b'))q('w_b').onclick=()=>{rd();w.step--;drawW()};if(q('w_x'))q('w_x').onclick=()=>{rd();w.step++;drawW()};
+if(q('w_o'))q('w_o').onclick=()=>$('#wz').hidden=true;
+if(q('w_c'))q('w_c').onclick=async()=>{rd();if(!w.n||!w.p)return;const sv=cfg.services[w.s],b={service:sv.name,date:w.date,time:w.time,name:w.n,phone:w.p,notes:w.nt,lang,status:'new',created:serverTimestamp()};
+try{await addDoc(collection(db,'bookings'),b)}catch(e){alert('Could not save booking: '+e.message);return}
+if(cfg.waOn&&cfg.waPhone&&cfg.waKey){const m=`New booking\n${b.service}\n${b.date} ${b.time}\n${b.name}\n${b.phone}\n${b.notes}`;new Image().src=`https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(cfg.waPhone)}&text=${encodeURIComponent(m)}&apikey=${encodeURIComponent(cfg.waKey)}`}
+w.step=4;drawW()}}
+$('#wz').onclick=e=>{if(e.target.id=='wz')$('#wz').hidden=true};
+/* staff login */
+function login(){$('#wz').hidden=false;const u=U[lang];$('#wzb').innerHTML=`<h3>${u[4]}</h3><input id="le" type="email" placeholder="Email"><input id="lp" type="password" placeholder="Password"><button class="btn" id="lg">${u[5]}</button>`;
+$('#lg').onclick=()=>auth?signInWithEmailAndPassword(auth,$('#le').value,$('#lp').value).then(()=>$('#wz').hidden=true).catch(e=>alert(e.message)):alert('Fill in firebase-config.js first')}
+if(auth)onAuthStateChanged(auth,u=>{user=u;if(!u)$('#adm').hidden=true;render()});
+/* editor */
+const T=(k,l,t)=>`<label>${l}${t?` <small>(${lang})</small>`:''}</label><input data-k="${k}" data-t="${t?1:0}" value="${esc(t?tx(cfg,k):cfg[k])}">`;
+const IM=(k,l)=>T(k,l+' (file name or URL)');
+function adm(){const p=$('#adm');p.hidden=false;const tabs=['General','Hero','Services','Gallery','Contact','Booking','Closures','API','Bookings'];let h=`<div class="r"><b>Editor</b><button class="btn" id="sv">Save</button><button class="btn" id="lo" style="background:#888">Log out</button><button class="btn" id="cl" style="background:#c00">✕</button></div><div class="t">${tabs.map(x=>`<button data-tab="${x}" class="${x==tab?'on':''}">${x}</button>`).join('')}</div><small>Text edits apply to the language chosen in the top-right menu (${LN[lang]}). Empty = falls back to English.</small>`;
+if(tab=='General')h+=T('name','Business name',1)+IM('logo','Logo')+IM('favicon','Favicon (tab icon)')+T('imgFolder','Image folder in repo')+`<label>Main color</label><input type="color" data-k="c1" value="${cfg.c1}"><label>Light color</label><input type="color" data-k="c2" value="${cfg.c2}">`;
+if(tab=='Hero')h+=IM('heroImg','Hero background photo')+T('heroTitle','Hero title',1)+T('heroText','Hero text',1)+IM('aboutImg','About background photo')+T('aboutTitle','About title',1)+T('aboutText','About text',1);
+if(tab=='Services')h+=cfg.services.map((s,i)=>`<div class="row"><label>Name <small>(${lang})</small></label><input data-si="${i}" data-sf="name" value="${esc(tx(s,'name'))}"><label>Description <small>(${lang})</small></label><input data-si="${i}" data-sf="desc" value="${esc(tx(s,'desc'))}"><label>Photo (file name or URL)</label><input data-si="${i}" data-sf="img" data-n="1" value="${esc(s.img)}"><button data-del="${i}">Remove</button></div>`).join('')+'<button class="btn" id="sa">+ Add service</button>';
+if(tab=='Gallery')h+=`<label>Photos, one file name or URL per line</label><textarea rows="10" data-k="gallery">${esc(cfg.gallery)}</textarea>`;
+if(tab=='Contact')h+=T('phone','Phone')+T('email','Email')+T('whatsapp','WhatsApp number (country code, digits)')+T('facebook','Facebook URL')+T('instagram','Instagram URL');
+if(tab=='Booking')h+=`<label>Opens</label><input type="time" data-k="start" value="${cfg.start}"><label>Closes</label><input type="time" data-k="end" value="${cfg.end}"><label>Slot length (minutes)</label><input type="number" data-k="slot" value="${cfg.slot}">`;
+if(tab=='Closures')h+='<label>Weekly closures</label>'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d,i)=>`<label><input type="checkbox" style="width:auto" data-d="${i}" ${cfg.closedDays.includes(i)?'checked':''}> ${d}</label>`).join('')+`<label>One-off closed dates (YYYY-MM-DD, one per line)</label><textarea rows="8" data-k="closedDates">${esc(cfg.closedDates)}</textarea>`;
+if(tab=='API')h+=`<label><input type="checkbox" style="width:auto" data-k="waOn" ${cfg.waOn?'checked':''}> Send bookings to my WhatsApp (CallMeBot)</label>`+T('waPhone','Your WhatsApp number (+country code)')+T('waKey','CallMeBot API key')+'<button class="btn" id="wt">Send test</button><p><small>Setup: save +34 644 51 95 23 in your contacts, WhatsApp it "I allow callmebot to send me messages", copy the API key it replies with.</small></p>';
+if(tab=='Bookings')h+='<div id="bl">Loading…</div>';
+p.innerHTML=h;if(tab=='Bookings')loadB()}
+async function loadB(){try{const s=await getDocs(query(collection(db,'bookings'),orderBy('created','desc')));$('#bl').innerHTML=s.docs.map(d=>{const b=d.data();return`<div class="row"><b>${esc(b.service)}</b><br>${esc(b.date)} ${esc(b.time)}<br>${esc(b.name)} · ${esc(b.phone)}<br><small>${esc(b.notes)}</small><br><select data-bs="${d.id}">${['new','confirmed','done','cancelled'].map(x=>`<option ${x==b.status?'selected':''}>${x}</option>`).join('')}</select><button data-bd="${d.id}">Delete</button></div>`}).join('')||'No bookings yet'}catch(e){$('#bl').textContent=e.message}}
+const A=$('#adm');
+A.addEventListener('input',e=>{const t=e.target;if(t.dataset.k){const k=t.dataset.k,v=t.type=='checkbox'?t.checked:t.type=='number'?+t.value:t.value;cfg[t.dataset.t=='1'&&lang!='en'?k+'_'+lang:k]=v}
+else if(t.dataset.si){const s=cfg.services[t.dataset.si],f=t.dataset.sf;s[f=='img'||lang=='en'?f:f+'_'+lang]=t.value}
+else if(t.dataset.d){const d=+t.dataset.d;cfg.closedDays=cfg.closedDays.filter(x=>x!=d);if(t.checked)cfg.closedDays.push(d)}
+else if(t.dataset.bs)updateDoc(doc(db,'bookings',t.dataset.bs),{status:t.value});
+render()});
+A.addEventListener('click',async e=>{const t=e.target,id=t.id;
+if(t.dataset.tab){tab=t.dataset.tab;adm()}
+if(t.dataset.del){cfg.services.splice(+t.dataset.del,1);adm();render()}
+if(t.dataset.bd&&confirm('Delete booking?')){await deleteDoc(doc(db,'bookings',t.dataset.bd));loadB()}
+if(id=='sa'){cfg.services.push({name:'New service',desc:'',img:''});adm();render()}
+if(id=='cl')A.hidden=true;if(id=='lo')signOut(auth);
+if(id=='sv')try{await setDoc(doc(db,'site','config'),JSON.parse(JSON.stringify(cfg)));alert('Saved ✔')}catch(er){alert('Save failed: '+er.message)}
+if(id=='wt')new Image().src=`https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(cfg.waPhone)}&text=${encodeURIComponent('Test from '+cfg.name)}&apikey=${encodeURIComponent(cfg.waKey)}`,alert('Test sent (check WhatsApp)')});
+render();
+try{const s=await getDoc(doc(db,'site','config'));if(s.exists()){cfg={...D,...s.data()};render()}}catch(e){console.warn(e)}
+</script></body></html>
